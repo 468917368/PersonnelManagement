@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hnust.personnelmanagement.mapper.UserMapper.HrTransferMapper">
+
+<!--  修改审批状态-->
+  <update id="updateStatus">
+    UPDATE
+        hr_transfer
+    SET
+        status = #{status}
+    WHERE
+        id = #{id}
+  </update>
+
+  <!--查询未审批的调动-->
+  <select id="selectNotTransferList" resultType="com.hnust.personnelmanagement.bean.dto.HrTransfer">
+    SELECT
+      ht.*,
+      u.real_name  AS employee_name,
+      (SELECT dept_name FROM hr_department WHERE id = ht.before_department_id)  AS before_department_name,
+      (SELECT dept_name FROM hr_department WHERE id = ht.after_department_id)  AS after_department_name,
+      (SELECT position_name FROM hr_position WHERE id = ht.before_position_id)  AS before_position_name,
+      (SELECT position_name FROM hr_position WHERE id = ht.after_position_id)  AS after_position_name,
+      u.real_name  AS approver_name
+    FROM hr_transfer ht
+           LEFT JOIN hr_employee e ON ht.employee_id  = e.employee_no
+           LEFT JOIN sys_user u ON ht.employee_id  = u.id
+    WHERE ht.status  = 0
+    ORDER BY ht.transfer_date  ASC
+  </select>
+
+<!--  查询已审批的调动-->
+  <select id="selectCompletedTransferList" resultType="com.hnust.personnelmanagement.bean.dto.HrTransfer">
+    SELECT
+      ht.*,
+      u.real_name  AS employee_name,
+      (SELECT dept_name FROM hr_department WHERE id = ht.before_department_id)  AS before_department_name,
+      (SELECT dept_name FROM hr_department WHERE id = ht.after_department_id)  AS after_department_name,
+      (SELECT position_name FROM hr_position WHERE id = ht.before_position_id)  AS before_position_name,
+      (SELECT position_name FROM hr_position WHERE id = ht.after_position_id)  AS after_position_name,
+      u.real_name  AS approver_name
+    FROM hr_transfer ht
+           LEFT JOIN hr_employee e ON ht.employee_id  = e.employee_no
+           LEFT JOIN sys_user u ON ht.employee_id  = u.id
+    WHERE ht.status  = 1 or ht.status  = 2
+    ORDER BY ht.transfer_date  ASC
+  </select>
+
+</mapper>

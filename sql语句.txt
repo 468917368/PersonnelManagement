@@ -1,0 +1,250 @@
+create database personnel_management;
+
+use personnel_management;
+
+# 1. 用户表(sys_user)
+CREATE TABLE `sys_user` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '用户ID',
+  `username` varchar(50) NOT NULL COMMENT '用户名',
+  `password` varchar(100) NOT NULL COMMENT '密码',
+  `real_name` varchar(50) DEFAULT NULL COMMENT '真实姓名',
+  `email` varchar(100) DEFAULT NULL COMMENT '邮箱',
+  `phone` varchar(20) DEFAULT NULL COMMENT '手机号',
+  `status` tinyint(1) DEFAULT '1' COMMENT '状态(0:禁用,1:正常)',
+  `create_time` datetime DEFAULT NULL COMMENT '创建时间',
+  `update_time` datetime DEFAULT NULL COMMENT '更新时间',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `username` (`username`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='系统用户表';
+
+
+# 2. 角色表(sys_role)
+CREATE TABLE `sys_role` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '角色ID',
+  `role_name` varchar(50) NOT NULL COMMENT '角色名称',
+  `role_code` varchar(50) NOT NULL COMMENT '角色编码',
+  `description` varchar(255) DEFAULT NULL COMMENT '角色描述',
+  `create_time` datetime DEFAULT NULL COMMENT '创建时间',
+  `update_time` datetime DEFAULT NULL COMMENT '更新时间',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `role_code` (`role_code`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='角色表';
+
+# 3. 用户角色关联表(sys_user_role)
+CREATE TABLE `sys_user_role` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID',
+  `user_id` bigint(20) NOT NULL COMMENT '用户ID',
+  `role_id` bigint(20) NOT NULL COMMENT '角色ID',
+  PRIMARY KEY (`id`),
+  KEY `idx_user_id` (`user_id`),
+  KEY `idx_role_eid` (`role_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户角色关联表';
+
+# 4. 员工信息表(hr_employee)
+CREATE TABLE `hr_employee` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '员工ID',
+  `employee_no` varchar(20) NOT NULL COMMENT '员工编号',
+  `name` varchar(50) NOT NULL COMMENT '姓名',
+  `gender` tinyint(1) DEFAULT NULL COMMENT '性别(0:女,1:男)',
+  `birth_date` date DEFAULT NULL COMMENT '出生日期',
+  `id_card` varchar(20) DEFAULT NULL COMMENT '身份证号',
+  `phone` varchar(20) DEFAULT NULL COMMENT '手机号',
+  `email` varchar(100) DEFAULT NULL COMMENT '邮箱',
+  `address` varchar(255) DEFAULT NULL COMMENT '住址',
+  `education` varchar(50) DEFAULT NULL COMMENT '学历',
+  `position_id` bigint(20) DEFAULT NULL COMMENT '职位ID',
+  `department_id` bigint(20) DEFAULT NULL COMMENT '部门ID',
+  `entry_date` date DEFAULT NULL COMMENT '入职日期',
+  `status` tinyint(1) DEFAULT '1' COMMENT '状态(0:离职,1:在职)',
+  `create_time` datetime DEFAULT NULL COMMENT '创建时间',
+  `update_time` datetime DEFAULT NULL COMMENT '更新时间',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `employee_no` (`employee_no`),
+  KEY `idx_position_id` (`position_id`),
+  KEY `idx_department_id` (`department_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='员工信息表';
+
+# 5. 部门表(hr_department)
+CREATE TABLE `hr_department` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '部门ID',
+  `dept_name` varchar(50) NOT NULL COMMENT '部门名称',
+  `dept_code` varchar(50) NOT NULL COMMENT '部门编码',
+  `parent_id` bigint(20) DEFAULT '0' COMMENT '父部门ID',
+  `leader_id` bigint(20) DEFAULT NULL COMMENT '部门负责人ID',
+  `description` varchar(255) DEFAULT NULL COMMENT '部门描述',
+  `create_time` datetime DEFAULT NULL COMMENT '创建时间',
+  `update_time` datetime DEFAULT NULL COMMENT '更新时间',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `dept_code` (`dept_code`),
+  KEY `idx_parent_id` (`parent_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='部门表';
+
+# 6. 职位表(hr_position)
+CREATE TABLE `hr_position` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '职位ID',
+  `position_name` varchar(50) NOT NULL COMMENT '职位名称',
+  `position_code` varchar(50) NOT NULL COMMENT '职位编码',
+  `position_level` int(11) DEFAULT NULL COMMENT '职位等级',
+  `department_id` bigint(20) DEFAULT NULL COMMENT '所属部门ID',
+  `description` varchar(255) DEFAULT NULL COMMENT '职位描述',
+  `create_time` datetime DEFAULT NULL COMMENT '创建时间',
+  `update_time` datetime DEFAULT NULL COMMENT '更新时间',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `position_code` (`position_code`),
+  KEY `idx_department_id` (`department_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='职位表';
+
+# 7. 薪酬表(hr_salary)
+CREATE TABLE `hr_salary` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '薪酬ID',
+  `employee_id` bigint(20) NOT NULL COMMENT '员工ID',
+  `basic_salary` decimal(10,2) DEFAULT NULL COMMENT '基本工资',
+  `position_salary` decimal(10,2) DEFAULT NULL COMMENT '职位工资',
+  `performance_salary` decimal(10,2) DEFAULT NULL COMMENT '绩效工资',
+  `bonus` decimal(10,2) DEFAULT NULL COMMENT '奖金',
+  `insurance` decimal(10,2) DEFAULT NULL COMMENT '保险',
+  `tax` decimal(10,2) DEFAULT NULL COMMENT '个税',
+  `actual_salary` decimal(10,2) DEFAULT NULL COMMENT '实发工资',
+  `salary_month` varchar(7) NOT NULL COMMENT '工资月份(格式:yyyy-MM)',
+  `status` tinyint(1) DEFAULT '0' COMMENT '状态(0:未发放,1:已发放)',
+  `create_time` datetime DEFAULT NULL COMMENT '创建时间',
+  `update_time` datetime DEFAULT NULL COMMENT '更新时间',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `idx_employee_month` (`employee_id`,`salary_month`),
+  KEY `idx_salary_month` (`salary_month`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='薪酬表';
+
+# 8. 人事调整记录表(hr_transfer)
+CREATE TABLE `hr_transfer` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '调动ID',
+  `employee_id` bigint(20) NOT NULL COMMENT '员工ID',
+  `before_department_id` bigint(20) DEFAULT NULL COMMENT '调动前部门ID',
+  `after_department_id` bigint(20) DEFAULT NULL COMMENT '调动后部门ID',
+  `before_position_id` bigint(20) DEFAULT NULL COMMENT '调动前职位ID',
+  `after_position_id` bigint(20) DEFAULT NULL COMMENT '调动后职位ID',
+  `transfer_type` tinyint(1) DEFAULT NULL COMMENT '调动类型(1:部门调动,2:职位调动,3:同时调动)',
+  `transfer_reason` varchar(255) DEFAULT NULL COMMENT '调动原因',
+  `transfer_date` date DEFAULT NULL COMMENT '调动日期',
+  `approver_id` bigint(20) DEFAULT NULL COMMENT '审批人ID',
+  `status` tinyint(1) DEFAULT '0' COMMENT '状态(0:待审批,1:已审批,2:已拒绝)',
+  `create_time` datetime DEFAULT NULL COMMENT '创建时间',
+  `update_time` datetime DEFAULT NULL COMMENT '更新时间',
+  PRIMARY KEY (`id`),
+  KEY `idx_employee_id` (`employee_id`),
+  KEY `idx_transfer_date` (`transfer_date`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='人事调整记录表';
+### 表关系说明
+
+# 1. 用户-角色-权限 ：多对多关系，通过中间表关联
+# 	- 用户与角色：通过 sys_user_role 关联
+# 	- 角色与权限：通过 sys_role_permission 关联
+#
+# 2. 员工-部门-职位 ：多对一关系
+# 	- 员工属于一个部门： hr_employee.department_id 关联 hr_department.id
+# 	- 员工拥有一个职位： hr_employee.position_id 关联 hr_position.id
+# 	- 职位属于一个部门： hr_position.department_id 关联 hr_department.id
+#
+# 3. 职位-职位等级 ：多对一关系
+# 	- 职位有一个等级： hr_position.position_level 关联 hr_position_level.level_value
+#
+# 4. 薪酬-员工 ：一对多关系
+# 	- 一个员工有多条薪酬记录： hr_salary.employee_id 关联 hr_employee.id
+#
+# 5. 薪酬标准-职位等级 ：多对一关系
+# 	- 薪酬标准对应一个职位等级： hr_salary_standard.position_level_id 关联 hr_position_level.id
+#
+# 6. 人事调整-员工 ：一对多关系
+# 	- 一个员工有多条调整记录： hr_transfer.employee_id 关联 hr_employee.id
+
+# 1. 用户表(sys_user)数据
+INSERT INTO `sys_user` (`id`, `username`, `password`, `real_name`, `email`, `phone`, `status`, `create_time`, `update_time`) VALUES
+(null, 'admin', 'admin123', '系统管理员', 'admin@company.com',  '13800138000', 1, now(), now()),
+(null, 'hr_manager', 'hr123', '人事经理', 'hr@company.com',  '13800138001', 1, now(), now()),
+(null, 'finance', 'finance123', '财务专员', 'finance@company.com',  '13800138002', 1, now(), now()),
+(null, 'dept_head', 'dept123', '部门主管', 'dept@company.com',  '13800138003', 1, now(), now()),
+(null, 'zhangsan', 'zhangsan123', '张三', 'zhangsan@company.com',  '13800138004', 1, now(), now()),
+(null, 'lisi', 'lisi123', '李四', 'lisi@company.com',  '13800138005', 1, now(), now()),
+(null, 'wangwu', 'wangwu123', '王五', 'wangwu@company.com',  '13800138006', 1, now(), now());
+
+insert into sys_user values (7, 'wangwu', 'wangwu123', '王五', 'wangwu@company.com',  '13800138006', 1, now(), now());
+
+# 2. 角色表(sys_role)数据
+INSERT INTO `sys_role` (`id`, `role_name`, `role_code`, `description`, `create_time`, `update_time`) VALUES
+(1, '系统管理员', 'ROLE_ADMIN', '拥有系统所有权限', now(), now()),
+(2, '人事经理', 'ROLE_HR', '负责人事管理相关权限', now(), now()),
+(3, '财务专员', 'ROLE_FINANCE', '负责薪酬管理相关权限', now(), now()),
+(4, '部门主管', 'ROLE_DEPT_HEAD', '负责本部门管理权限',now(), now()),
+(5, '普通员工', 'ROLE_EMPLOYEE', '普通员工权限', now(), now());
+
+
+# 3. 用户角色关联表(sys_user_role)数据
+INSERT INTO `sys_user_role` (`id`, `user_id`, `role_id`) VALUES
+(null, 1, 1),
+(null, 2, 2),
+(null, 3, 3),
+(null, 4, 4),
+(null, 5, 5),
+(null, 6, 5),
+(null, 7, 5);
+
+insert into sys_user_role values (7, 7, 5);
+
+# 4. 员工信息表(hr_employee)数据
+INSERT INTO `hr_employee` (`id`, `employee_no`, `name`, `gender`, `birth_date`, `id_card`, `phone`, `email`, `address`, `education`, `position_id`, `department_id`, `entry_date`, `status`, `create_time`, `update_time`) VALUES
+(1, 'EMP001', '张三', 1, '2005-01-15', '001', '13800138004', 'zhangsan@company.com',  '湘潭市雨湖区', '本科', 1, 1, now(), 1, now(),now()),
+(2, 'EMP002', '李四', 1, '2004-05-20', '002', '13800138005', 'lisi@company.com',  '北京市海淀区', '硕士', 2, 2, now(), 1, now(),now()),
+(3, 'EMP003', '王五', 1, '2005-08-12', '003', '13800138006', 'wangwu@company.com',  '北京市西城区', '本科', 3, 3, now(), 1, now(),now());
+
+insert into hr_employee values (3, 'EMP003', '王五', 1, '2005-08-12', '003', '13800138006', 'wangwu@company.com',  '北京市西城区', '本科', 3, 3, now(), 1, now(),now());
+
+
+# 5. 部门表(hr_department)数据
+INSERT INTO `hr_department` (`id`, `dept_name`, `dept_code`, `parent_id`, `leader_id`, `description`, `create_time`, `update_time`) VALUES
+(1, '总公司', 'DEPT_ROOT', 0, 1, '公司总部', now(),now()),
+(2, '人事部', 'DEPT_HR', 1, 2, '负责人事管理', now(),now()),
+(3, '财务部', 'DEPT_FINANCE', 1, 3, '负责财务管理', now(),now()),
+(4, '技术部', 'DEPT_TECH', 1, 4, '负责技术研发', now(),now()),
+(5, '市场部', 'DEPT_MARKET', 1, NULL, '负责市场推广', now(),now()),
+(6, '技术一部', 'DEPT_TECH_1', 4, NULL, '技术部下属一部', now(),now()),
+(7, '技术二部', 'DEPT_TECH_2', 4, NULL, '技术部下属二部', now(),now());
+
+# 6. 职位表(hr_position)数据
+INSERT INTO `hr_position` (`id`, `position_name`, `position_code`, `position_level`, `department_id`, `description`, `create_time`, `update_time`) VALUES
+(1, '总经理', 'POS_CEO', 1, 1, '公司总经理', now(),now()),
+(2, '人事经理', 'POS_HR_MANAGER', 2, 2, '人事部门经理', now(),now()),
+(3, '财务专员', 'POS_FINANCE', 3, 3, '财务部门专员', now(),now()),
+(4, '技术总监', 'POS_TECH_DIRECTOR', 2, 4, '技术部门总监', now(),now()),
+(5, '市场经理', 'POS_MARKET_MANAGER', 2, 5, '市场部门经理', now(),now()),
+(6, '高级工程师', 'POS_SENIOR_ENGINEER', 3, 6, '高级技术岗位', now(),now()),
+(7, '初级工程师', 'POS_JUNIOR_ENGINEER', 4, 6, '初级技术岗位', now(),now()),
+(8, '人事专员', 'POS_HR', 3, 2, '人事部门专员', now(),now());
+
+# 7. 薪酬表(hr_salary)数据
+INSERT INTO `hr_salary` (`id`, `employee_id`, `basic_salary`, `position_salary`, `performance_salary`, `bonus`, `insurance`, `tax`, `actual_salary`, `salary_month`, `status`, `create_time`, `update_time`) VALUES
+(null, 5, 30000.00, 10000.00, 5000.00, 20000.00, 5000.00, 4500.00, 55500.00, '2025-05', 1, now(),now()),
+(null, 6, 20000.00, 8000.00, 4000.00, 5000.00, 4000.00, 2700.00, 30300.00, '2025-05', 1,  now(),now()),
+(null, 7, 15000.00, 5000.00, 3000.00, 3000.00, 3000.00, 1800.00, 22200.00, '2025-05', 1,  now(),now()),
+(null, 5, 30000.00, 10000.00, 6000.00, 15000.00, 5000.00, 4350.00, 51650.00, '2025-06', 1,  now(),now()),
+(null, 6, 20000.00, 8000.00, 4500.00, 4000.00, 4000.00, 2550.00, 27950.00, '2025-06', 1,  now(),now()),
+(null, 7, 15000.00, 5000.00, 3500.00, 2500.00, 3000.00, 1700.00, 21300.00, '2025-06', 1,  now(),now()),
+(null, 5, 30000.00, 10000.00, 6000.00, 15000.00, 5000.00, 4350.00, 51650.00, '2025-04', 1,  now(),now()),
+(null, 6, 20000.00, 8000.00, 4500.00, 4000.00, 4000.00, 2550.00, 27950.00, '2025-04', 1,  now(),now()),
+(null, 7, 15000.00, 5000.00, 3500.00, 2500.00, 3000.00, 1700.00, 21300.00, '2025-04', 1,  now(),now());
+
+insert into hr_salary
+values  (3, 7, 15000.00, 5000.00, 3000.00, 3000.00, 3000.00, 1800.00, 22200.00, '2025-05', 1,  now(),now()),
+        (6, 7, 15000.00, 5000.00, 3500.00, 2500.00, 3000.00, 1700.00, 21300.00, '2025-06', 1,  now(),now()),
+        (9, 7, 15000.00, 5000.00, 3500.00, 2500.00, 3000.00, 1700.00, 21300.00, '2025-04', 1,  now(),now());
+
+# 8. 人事调整记录表(hr_transfer)数据
+INSERT INTO `hr_transfer` (`id`, `employee_id`, `before_department_id`, `after_department_id`, `before_position_id`, `after_position_id`, `transfer_type`, `transfer_reason`, `transfer_date`, `approver_id`, `status`, `create_time`, `update_time`) VALUES
+(1, 5, 6, 7, 6, 6, 1, '部门业务调整', '2025-02-15', 2, 1, now(),now()),
+(2, 6, 6, 7, 7, 7, 1, '部门业务调整', '2025-02-15', 2, 1, now(),now()),
+(3, 5, NULL, NULL, 6, 7, 2, '员工能力提升', '2025-03-01', 2, 1,now(),now()),
+(4, 7, 2, 2, 8, 8, 2, '薪资调整', '2025-03-10', 2, 0, now(),now()),
+(5, 4, 4, 4, 4, 6, 2, '业务需要', '2025-01-20', 2, 1, now(),now()),
+(6, 6, 7, 6, 7, 6, 3, '项目组调整', '2025-04-01', 2, 2, now(),now()),
+(7, 3, 3, 3, 3, 3, 2, '年度考核晋升', '2025-01-05', 2, 1, now(),now());
+
+insert into hr_transfer
+values (4, 7, 2, 2, 8, 8, 2, '薪资调整', '2025-03-10', 2, 0, now(),now());

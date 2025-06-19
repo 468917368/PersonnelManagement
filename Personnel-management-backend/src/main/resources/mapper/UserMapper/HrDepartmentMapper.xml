@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hnust.personnelmanagement.mapper.UserMapper.HrDepartmentMapper">
+
+<!--    更新部门信息-->
+    <update id="updateDepartment">
+        UPDATE
+            hr_department
+        SET
+            dept_name = #{deptName},
+            dept_code = #{deptCode},
+            parent_id = #{parentId},
+            leader_id = #{leaderId},
+            description = #{description},
+            update_time = NOW()
+        WHERE
+            id = #{id}
+    </update>
+
+    <!--    根据部门id查询部门信息-->
+    <select id="selectDepartmentById" resultType="com.hnust.personnelmanagement.bean.dto.HrDepartment">
+        SELECT
+            d.id,
+            d.dept_name,
+            d.dept_code,
+            d.parent_id,
+            p.dept_name  AS parent_name,
+            d.leader_id,
+            e.name  AS leader_name,
+            d.description,
+            d.create_time,
+            d.update_time
+        FROM hr_department d
+                 LEFT JOIN hr_department p ON d.parent_id  = p.id
+                 LEFT JOIN hr_employee e ON d.leader_id  = e.id
+        where
+            d.id = #{id}
+    </select>
+
+
+
+<!--    删除部门信息-->
+    <delete id="deleteDepartment">
+        DELETE
+            FROM hr_department
+        WHERE
+            id = #{id}
+    </delete>
+
+    <!--    添加部门信息-->
+    <insert id="insertDepartment">
+        INSERT INTO hr_department
+        (id,dept_name, dept_code, parent_id, leader_id, description, create_time, update_time)
+        VALUES
+            (
+                null,
+                #{deptName},
+                #{deptCode},
+                #{parentId},
+                #{leaderId},
+                #{description},
+                NOW(),
+                NOW()
+            )
+    </insert>
+
+
+    <!--    查询所有部门信息-->
+    <select id="selectAllDepartments" resultType="com.hnust.personnelmanagement.bean.dto.HrDepartment">
+        SELECT
+            d.id,
+            d.dept_name,
+            d.dept_code,
+            d.parent_id,
+            p.dept_name  AS parent_name,
+            d.leader_id,
+            e.name  AS leader_name,
+            d.description,
+            d.create_time,
+            d.update_time
+        FROM hr_department d
+                 LEFT JOIN hr_department p ON d.parent_id  = p.id
+                 LEFT JOIN hr_employee e ON d.leader_id  = e.id
+        ORDER BY d.id  ASC
+    </select>
+</mapper>
